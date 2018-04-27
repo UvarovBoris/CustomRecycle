@@ -1,52 +1,66 @@
 package com.example.uvarov.customrecycle;
 
+import android.content.Context;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    private RecyclerView mRecycleView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        mRecycleView = findViewById(R.id.recycle_view);
+        mRecycleView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+        List<String> titles = new ArrayList<>();
+        titles.add("1");
+        titles.add("2");
+        titles.add("3");
+        titles.add("4");
+        titles.add("5");
+        titles.add("6");
+        titles.add("7");
+        titles.add("8");
+        titles.add("9");
+        RecycleAdapter adapter = new RecycleAdapter(this, titles);
+        mRecycleView.setAdapter(adapter);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+    private class RecycleAdapter extends RecyclerView.Adapter<RecycleItem> {
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        private Context context;
+        private List<String> titles;
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        public RecycleAdapter(Context context, List<String> titles) {
+            this.context = context;
+            this.titles = titles;
         }
 
-        return super.onOptionsItemSelected(item);
+        @Override
+        public int getItemCount() {
+            return titles.size();
+        }
+
+        @Override
+        public RecycleItem onCreateViewHolder(ViewGroup parent, int viewType) {
+            return new RecycleItem(LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false));
+        }
+
+        @Override
+        public void onBindViewHolder(RecycleItem holder, int position) {
+            holder.onBindViewHolder(titles.get(position));
+        }
     }
+
 }
