@@ -31,8 +31,10 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
     private static final int DEFAULT_TIME_FOR_ITEM_SETTLE = 150;
 
     private int childViewWidth;
-    private int childHalfWidth, childHalfHeight;
-    private int recyclerCenterX, recyclerCenterY;
+    private int childHalfWidth;
+    private int childViewHeight;
+    private int recyclerCenterX;
+    private int recyclerCenterY;
 
     private int currentScrollState;
     private int scrollToChangeTheCurrent;
@@ -78,7 +80,8 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
             initChildDimensions(recycler);
         }
 
-        updateRecyclerDimensions();
+        recyclerCenterX = getWidth() / 2;
+        recyclerCenterY = getHeight() / 2;
 
         detachAndScrapAttachedViews(recycler);
 
@@ -98,17 +101,12 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
 
         childViewWidth = getDecoratedMeasuredWidth(viewToMeasure);
         childHalfWidth = childViewWidth / 2;
-        childHalfHeight = getDecoratedMeasuredHeight(viewToMeasure) / 2;
+        childViewHeight = getDecoratedMeasuredHeight(viewToMeasure);
 
         //This is the distance between adjacent view's x-center coordinates
         scrollToChangeTheCurrent = childViewWidth;
 
         detachAndScrapView(viewToMeasure, recycler);
-    }
-
-    private void updateRecyclerDimensions() {
-        recyclerCenterX = getWidth() / 2;
-        recyclerCenterY = getHeight() / 2;
     }
 
     private void fill(RecyclerView.Recycler recycler) {
@@ -118,24 +116,23 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
 //        final int childTop = recyclerCenterY - childHalfHeight;
 //        final int childBottom = recyclerCenterY + childHalfHeight;
 
-        final int childTop = 0;
-        final int childBottom = childViewWidth;
-
-
         //Layout current
         layoutView(recycler, currentPosition,
-                currentViewCenterX - childHalfWidth, childTop,
-                currentViewCenterX + childHalfWidth, childBottom);
+                currentViewCenterX - childHalfWidth,
+                0,
+                currentViewCenterX + childHalfWidth,
+                childViewHeight);
 
         int position;
-
         //Layout items to the left of the current item
         int viewRight = currentViewCenterX - childHalfWidth;
         position = currentPosition - 1;
         while (position >= 0 && viewRight > 0) {
             layoutView(recycler, position,
-                    viewRight - childViewWidth, childTop,
-                    viewRight, childBottom);
+                    viewRight - childViewWidth,
+                    0,
+                    viewRight,
+                    childViewHeight);
             viewRight -= childViewWidth;
             position--;
         }
@@ -145,8 +142,8 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
         position = currentPosition + 1;
         while (position < getItemCount() && viewLeft < getWidth()) {
             layoutView(recycler, position,
-                    viewLeft, childTop,
-                    viewLeft + childViewWidth, childBottom);
+                    viewLeft, 0,
+                    viewLeft + childViewWidth, childViewHeight);
             viewLeft += childViewWidth;
             position++;
         }
@@ -266,7 +263,11 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
         for (DiscreteScrollItemTransformer itemTransformer : itemTransformers) {
             for (int i = 0; i < getChildCount(); i++) {
                 View child = getChildAt(i);
-                itemTransformer.transformItem(child, getCenterRelativePositionOf(child));
+                int deltaXFromCenter = child.getLeft() + childHalfWidth - recyclerCenterX;
+                float rotateAngle = -90.0f * (deltaXFromCenter / 1800.0f);
+                child.setRotationY(rotateAngle);
+//                child.setRotationY(10.0f);
+//                itemTransformer.transformItem(child, getCenterRelativePositionOf(child));
             }
         }
     }
