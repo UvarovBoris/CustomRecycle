@@ -3,25 +3,31 @@ package com.example.uvarov.customrecycle;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
+import com.example.uvarov.customrecycle.DiscretScrollView.DiscreteScrollLayoutManager;
+import com.example.uvarov.customrecycle.DiscretScrollView.DiscreteScrollView;
+import com.example.uvarov.customrecycle.DiscretScrollView.ScaleTransformer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private RecyclerView mRecycleView;
+    private DiscreteScrollView mDiscreteScrollView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mRecycleView = findViewById(R.id.recycle_view);
-        mRecycleView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        mDiscreteScrollView = findViewById(R.id.recycle_view);
+//        mDiscreteScrollView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        DiscreteScrollLayoutManager layoutManager = new DiscreteScrollLayoutManager(this);
+        layoutManager.addItemTransformer(new ScaleTransformer());
+        mDiscreteScrollView.setLayoutManager(layoutManager);
 
         List<String> titles = new ArrayList<>();
         titles.add("1");
@@ -34,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         titles.add("8");
         titles.add("9");
         RecycleAdapter adapter = new RecycleAdapter(this, titles);
-        mRecycleView.setAdapter(adapter);
+        mDiscreteScrollView.setAdapter(adapter);
     }
 
     private class RecycleAdapter extends RecyclerView.Adapter<RecycleItem> {
