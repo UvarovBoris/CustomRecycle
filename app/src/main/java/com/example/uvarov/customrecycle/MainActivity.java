@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         titles.add(new ItemModel("5", Color.GRAY));
         titles.add(new ItemModel("6", Color.MAGENTA));
         titles.add(new ItemModel("7", Color.RED));
-        titles.add(new ItemModel("8", Color.WHITE));
+        titles.add(new ItemModel("8", Color.DKGRAY));
         titles.add(new ItemModel("9", Color.YELLOW));
         RecycleAdapter adapter = new RecycleAdapter(this, titles);
         mDiscreteScrollView.setAdapter(adapter);
