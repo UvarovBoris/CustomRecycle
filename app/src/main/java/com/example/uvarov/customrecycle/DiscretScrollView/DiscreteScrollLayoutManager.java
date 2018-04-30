@@ -265,6 +265,7 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
                 View child = getChildAt(i);
                 int deltaXFromCenter = child.getLeft() + childHalfWidth - recyclerCenterX;
                 float rotateAngle = -90.0f * (deltaXFromCenter / 1800.0f);
+                child.setPivotX(deltaXFromCenter > 0 ? childViewWidth : 0);
                 child.setRotationY(rotateAngle);
 //                child.setRotationY(10.0f);
 //                itemTransformer.transformItem(child, getCenterRelativePositionOf(child));

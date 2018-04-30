@@ -1,6 +1,7 @@
 package com.example.uvarov.customrecycle;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -29,16 +30,16 @@ public class MainActivity extends AppCompatActivity {
         layoutManager.addItemTransformer(new ScaleTransformer());
         mDiscreteScrollView.setLayoutManager(layoutManager);
 
-        List<String> titles = new ArrayList<>();
-        titles.add("1");
-        titles.add("2");
-        titles.add("3");
-        titles.add("4");
-        titles.add("5");
-        titles.add("6");
-        titles.add("7");
-        titles.add("8");
-        titles.add("9");
+        List<ItemModel> titles = new ArrayList<>();
+        titles.add(new ItemModel("1", Color.BLUE));
+        titles.add(new ItemModel("2", Color.BLACK));
+        titles.add(new ItemModel("3", Color.CYAN));
+        titles.add(new ItemModel("4", Color.GREEN));
+        titles.add(new ItemModel("5", Color.GRAY));
+        titles.add(new ItemModel("6", Color.MAGENTA));
+        titles.add(new ItemModel("7", Color.RED));
+        titles.add(new ItemModel("8", Color.WHITE));
+        titles.add(new ItemModel("9", Color.YELLOW));
         RecycleAdapter adapter = new RecycleAdapter(this, titles);
         mDiscreteScrollView.setAdapter(adapter);
     }
@@ -46,9 +47,9 @@ public class MainActivity extends AppCompatActivity {
     private class RecycleAdapter extends RecyclerView.Adapter<RecycleItem> {
 
         private Context context;
-        private List<String> titles;
+        private List<ItemModel> titles;
 
-        public RecycleAdapter(Context context, List<String> titles) {
+        public RecycleAdapter(Context context, List<ItemModel> titles) {
             this.context = context;
             this.titles = titles;
         }
