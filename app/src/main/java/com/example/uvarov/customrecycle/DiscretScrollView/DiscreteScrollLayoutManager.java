@@ -113,7 +113,7 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
         cacheAndDetachAttachedViews();
 
         int startX = recyclerCenterX - scrolledSum;
-        int topPosition = (scrolledSum + (childViewHalfWidth / 2)) / childViewHalfWidth;
+        int topPosition = (scrolledSum + (childViewWidth / 2)) / childViewWidth;
         topPosition = Math.min(Math.max(topPosition, 0), getItemCount() - 1);
 
 //        final int childTop = recyclerCenterY - childHalfHeight;
@@ -129,7 +129,7 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
 //        }
 
         for(int leftPosition = 0; leftPosition <= topPosition - 1; leftPosition++) {
-            int leftViewCenter = startX + (leftPosition * childViewHalfWidth);
+            int leftViewCenter = startX + (leftPosition * childViewWidth);
             if(leftViewCenter + childViewHalfWidth > 0) {
                 layoutView(recycler, leftPosition, leftViewCenter - childViewHalfWidth, 0, leftViewCenter + childViewHalfWidth, childViewHeight);
             }
@@ -145,14 +145,14 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
 //        }
 
         for(int rightPosition =  getItemCount() - 1; rightPosition >= topPosition + 1; rightPosition--) {
-            int rightViewCenter = startX + (rightPosition * childViewHalfWidth);
+            int rightViewCenter = startX + (rightPosition * childViewWidth);
             if(rightViewCenter - childViewHalfWidth < getWidth()) {
                 layoutView(recycler, rightPosition, rightViewCenter - childViewHalfWidth, 0, rightViewCenter + childViewHalfWidth, childViewHeight);
             }
         }
 
         //Layout current
-        int topViewCenter = startX + (topPosition * childViewHalfWidth);
+        int topViewCenter = startX + (topPosition * childViewWidth);
         layoutView(recycler, topPosition, topViewCenter - childViewHalfWidth, 0, topViewCenter + childViewHalfWidth, childViewHeight);
 
         recycleViewsAndClearCache(recycler);
@@ -273,9 +273,9 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
                 float deltaXFromCenter = child.getLeft() + childViewHalfWidth - recyclerCenterX;
                 float maxTransformDistance = 2 * childViewHalfWidth;
                 float ratio = deltaXFromCenter / maxTransformDistance;
-                float rotateAngle = -60.0f * ratio;
-                child.setPivotX(deltaXFromCenter > 0 ? childViewWidth : 0);
-                child.setRotationY(rotateAngle);
+                //float rotateAngle = -60.0f * ratio;
+                //child.setPivotX(deltaXFromCenter > 0 ? childViewWidth : 0);
+               // child.setRotationY(rotateAngle);
 //               child.setTranslationX(-childViewHalfWidth * (Math.signum(ratio) * ratio * ratio));
 //                child.setRotationY(10.0f);
 //                itemTransformer.transformItem(child, getCenterRelativePositionOf(child));
