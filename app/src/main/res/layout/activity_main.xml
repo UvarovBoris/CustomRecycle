@@ -5,14 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false"
-    android:clipToPadding="false">
+    android:clipToPadding="false"
+    tools:context=".MainActivity">
 
-    <android.support.v7.widget.RecyclerView
+    <com.example.uvarov.customrecycle.DiscretScrollView.DiscreteScrollView
         android:id="@+id/recycle_view"
+        android:layout_gravity="center"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:clipChildren="false"
-        android:clipToPadding="false" />
+        android:layout_height="wrap_content"/>
 
 </FrameLayout>
