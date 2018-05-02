@@ -291,11 +291,14 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
             for (int i = 0; i < getChildCount(); i++) {
                 View child = getChildAt(i);
                 float deltaXFromCenter = child.getLeft() + childViewHalfWidth - recyclerCenterX;
-                float maxTransformDistance = 225;
+                float maxTransformDistance = (3 * childViewWidth) - calculateItemOffset(3 * childViewWidth);
                 float ratio = deltaXFromCenter / maxTransformDistance;
                 float rotateAngle = -60.0f * ratio;
-//                child.setPivotX(deltaXFromCenter > 0 ? childViewWidth : 0);
-//                child.setRotationY(rotateAngle);
+                child.setPivotX(deltaXFromCenter > 0 ? childViewWidth : 0);
+                child.setRotationY(rotateAngle);
+                float scale = 1.0f - (0.1f * Math.abs(ratio));
+                child.setScaleX(scale);
+                child.setScaleY(scale);
 //               child.setTranslationX(-childViewHalfWidth * (Math.signum(ratio) * ratio * ratio));
 //                child.setRotationY(10.0f);
 //                itemTransformer.transformItem(child, getCenterRelativePositionOf(child));
