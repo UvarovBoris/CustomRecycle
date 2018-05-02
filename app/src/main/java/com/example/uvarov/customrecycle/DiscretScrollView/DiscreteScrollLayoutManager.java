@@ -130,15 +130,15 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
 //            position--;
 //        }
 
-        for(int leftPosition = 0; leftPosition <= topPosition - 1; leftPosition++) {
-            if(topPosition - leftPosition > 3) {
+        for (int leftPosition = 0; leftPosition <= topPosition - 1; leftPosition++) {
+            if (topPosition - leftPosition > 3) {
                 continue;
             }
             float itemOffsetFromCenter = (leftPosition * childViewWidth) - scrolledSum;
-            float itemSelfOffset = calculateItemOffset(itemOffsetFromCenter);
+            float itemSelfOffset = childViewWidth * calculateItemOffsetRatio(itemOffsetFromCenter / childViewWidth);
             float leftViewCenter = recyclerCenterX + itemOffsetFromCenter - itemSelfOffset;
-            if(leftViewCenter + childViewHalfWidth > 0) {
-                layoutView(recycler, leftPosition, (int)(leftViewCenter - childViewHalfWidth), 0, (int)(leftViewCenter + childViewHalfWidth), childViewHeight);
+            if (leftViewCenter + childViewHalfWidth > 0) {
+                layoutView(recycler, leftPosition, (int) (leftViewCenter - childViewHalfWidth), 0, (int) (leftViewCenter + childViewHalfWidth), childViewHeight);
             }
         }
 
@@ -151,23 +151,23 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
 //            position++;
 //        }
 
-        for(int rightPosition =  getItemCount() - 1; rightPosition >= topPosition + 1; rightPosition--) {
-            if(rightPosition - topPosition > 3) {
+        for (int rightPosition = getItemCount() - 1; rightPosition >= topPosition + 1; rightPosition--) {
+            if (rightPosition - topPosition > 3) {
                 continue;
             }
             float itemOffsetFromCenter = (rightPosition * childViewWidth) - scrolledSum;
-            float itemSelfOffset = calculateItemOffset(itemOffsetFromCenter);
+            float itemSelfOffset = childViewWidth * calculateItemOffsetRatio(itemOffsetFromCenter / childViewWidth);
             float rightViewCenter = recyclerCenterX + itemOffsetFromCenter - itemSelfOffset;
-            if(rightViewCenter - childViewHalfWidth < getWidth()) {
-                layoutView(recycler, rightPosition, (int)(rightViewCenter - childViewHalfWidth), 0, (int)(rightViewCenter + childViewHalfWidth), childViewHeight);
+            if (rightViewCenter - childViewHalfWidth < getWidth()) {
+                layoutView(recycler, rightPosition, (int) (rightViewCenter - childViewHalfWidth), 0, (int) (rightViewCenter + childViewHalfWidth), childViewHeight);
             }
         }
 
         //Layout current
         float itemOffsetFromCenter = (topPosition * childViewWidth) - scrolledSum;
-        float itemSelfOffset = calculateItemOffset(itemOffsetFromCenter);
+        float itemSelfOffset = childViewWidth * calculateItemOffsetRatio(itemOffsetFromCenter / childViewWidth);
         float topViewCenter = recyclerCenterX + itemOffsetFromCenter - itemSelfOffset;
-        layoutView(recycler, topPosition, (int)(topViewCenter - childViewHalfWidth), 0, (int)(topViewCenter + childViewHalfWidth), childViewHeight);
+        layoutView(recycler, topPosition, (int) (topViewCenter - childViewHalfWidth), 0, (int) (topViewCenter + childViewHalfWidth), childViewHeight);
 
         recycleViewsAndClearCache(recycler);
     }
@@ -178,28 +178,34 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
 //        return sign * ((0.0004166f * x * x) + (0.375f * x) + 0);
 //    }
 
-    private float calculateItemOffset(float x) {
+//    private float calculateItemOffset(float x) {
+//        float sign = Math.signum(x);
+//        x = Math.abs(x);
+//        return sign * (-(19.0f * (x * x * x) / 81000000.0f) + (113.0f * (x * x) / 180000.0f) + ((599.0f * x) / 1800.0f));
+//    }
+
+    private float calculateItemOffsetRatio(float x) {
         float sign = Math.signum(x);
         x = Math.abs(x);
-        return sign * (-(19.0f * (x * x * x) / 81000000.0f) + (113.0f * (x * x) / 180000.0f) + ((599.0f * x) / 1800.0f));
+        return sign * ((-0.0216667f * x * x * x) + (0.19f * x * x) + (0.331667f * x));
     }
 
     private void layoutView(RecyclerView.Recycler recycler, final int position, int l, int t, int r, int b) {
         View v = detachedCache.get(position);
         //if (v == null) {
-            v = recycler.getViewForPosition(position);
-            addView(v);
-            measureChildWithMargins(v, 0, 0);
-            layoutDecoratedWithMargins(v, l, t, r, b);
-            v.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //scrollToPosition(position);
-                    targetOffset = position * scrollToChangeTheCurrent;
-                    pendingScroll = -(scrolledSum - targetOffset);
-                    startSmoothPendingScroll();
-                }
-            });
+        v = recycler.getViewForPosition(position);
+        addView(v);
+        measureChildWithMargins(v, 0, 0);
+        layoutDecoratedWithMargins(v, l, t, r, b);
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //scrollToPosition(position);
+                targetOffset = position * scrollToChangeTheCurrent;
+                pendingScroll = -(scrolledSum - targetOffset);
+                startSmoothPendingScroll();
+            }
+        });
         //} else {
         //    attachView(v);
         //    detachedCache.remove(position);
@@ -297,7 +303,7 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
             for (int i = 0; i < getChildCount(); i++) {
                 View child = getChildAt(i);
                 float deltaXFromCenter = child.getLeft() + childViewHalfWidth - recyclerCenterX;
-                float lastItemDistance = (3 * childViewWidth) - calculateItemOffset(3 * childViewWidth);
+                float lastItemDistance = (3 * childViewWidth) - (childViewWidth * calculateItemOffsetRatio(3));
                 float ratio = deltaXFromCenter / lastItemDistance;
                 float rotateAngle = -60.0f * ratio;
                 child.setPivotX(deltaXFromCenter > 0 ? childViewWidth : 0);
@@ -306,16 +312,9 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
                 child.setScaleX(scale);
                 child.setScaleY(scale);
 
-                float penultimateItemDistance = (2 * childViewWidth) - calculateItemOffset(2 * childViewWidth);
+                float penultimateItemDistance = (2 * childViewWidth) - (childViewWidth * calculateItemOffsetRatio(2));
                 float distanceToLast = lastItemDistance - penultimateItemDistance;
-             //   if(deltaXFromCenter >= penultimateItemDistance && deltaXFromCenter <= lastItemDistance) {
-                    child.setAlpha(1 - ((Math.abs(deltaXFromCenter) - penultimateItemDistance) / distanceToLast));
-                //}
-
-
-//               child.setTranslationX(-childViewHalfWidth * (Math.signum(ratio) * ratio * ratio));
-//                child.setRotationY(10.0f);
-//                itemTransformer.transformItem(child, getCenterRelativePositionOf(child));
+                child.setAlpha(1 - ((Math.abs(deltaXFromCenter) - penultimateItemDistance) / distanceToLast));
             }
         }
     }
