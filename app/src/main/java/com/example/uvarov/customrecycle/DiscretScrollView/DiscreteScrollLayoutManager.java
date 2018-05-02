@@ -57,6 +57,7 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
     private ScrollStateListener scrollStateListener;
 
     int targetOffset;
+    private int mTopPosition;
 
     public DiscreteScrollLayoutManager(Context c) {
         this.context = c;
@@ -114,9 +115,9 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
         cacheAndDetachAttachedViews();
 
         int startX = recyclerCenterX - scrolledSum;
-        int topPosition = (scrolledSum + (childViewWidth / 2)) / childViewWidth;
+        mTopPosition = (scrolledSum + (childViewWidth / 2)) / childViewWidth;
 //        int topPosition = scrolledSum / childViewWidth;
-        topPosition = Math.min(Math.max(topPosition, 0), getItemCount() - 1);
+        mTopPosition = Math.min(Math.max(mTopPosition, 0), getItemCount() - 1);
 
 //        final int childTop = recyclerCenterY - childHalfHeight;
 //        final int childBottom = recyclerCenterY + childHalfHeight;
@@ -130,8 +131,8 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
 //            position--;
 //        }
 
-        for (int leftPosition = 0; leftPosition <= topPosition - 1; leftPosition++) {
-            if (topPosition - leftPosition > 3) {
+        for (int leftPosition = 0; leftPosition <= mTopPosition - 1; leftPosition++) {
+            if (mTopPosition - leftPosition > 3) {
                 continue;
             }
             float itemOffsetFromCenter = (leftPosition * childViewWidth) - scrolledSum;
@@ -151,8 +152,8 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
 //            position++;
 //        }
 
-        for (int rightPosition = getItemCount() - 1; rightPosition >= topPosition + 1; rightPosition--) {
-            if (rightPosition - topPosition > 3) {
+        for (int rightPosition = getItemCount() - 1; rightPosition >= mTopPosition + 1; rightPosition--) {
+            if (rightPosition - mTopPosition > 3) {
                 continue;
             }
             float itemOffsetFromCenter = (rightPosition * childViewWidth) - scrolledSum;
@@ -164,10 +165,10 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
         }
 
         //Layout current
-        float itemOffsetFromCenter = (topPosition * childViewWidth) - scrolledSum;
+        float itemOffsetFromCenter = (mTopPosition * childViewWidth) - scrolledSum;
         float itemSelfOffset = childViewWidth * calculateItemOffsetRatio(itemOffsetFromCenter / childViewWidth);
         float topViewCenter = recyclerCenterX + itemOffsetFromCenter - itemSelfOffset;
-        layoutView(recycler, topPosition, (int) (topViewCenter - childViewHalfWidth), 0, (int) (topViewCenter + childViewHalfWidth), childViewHeight);
+        layoutView(recycler, mTopPosition, (int) (topViewCenter - childViewHalfWidth), 0, (int) (topViewCenter + childViewHalfWidth), childViewHeight);
 
         recycleViewsAndClearCache(recycler);
     }
@@ -192,7 +193,7 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
 
     private void layoutView(RecyclerView.Recycler recycler, final int position, int l, int t, int r, int b) {
         View v = detachedCache.get(position);
-        //if (v == null) {
+        if (v == null) {
         v = recycler.getViewForPosition(position);
         addView(v);
         measureChildWithMargins(v, 0, 0);
@@ -201,15 +202,17 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
             @Override
             public void onClick(View v) {
                 //scrollToPosition(position);
-                targetOffset = position * scrollToChangeTheCurrent;
-                pendingScroll = -(scrolledSum - targetOffset);
-                startSmoothPendingScroll();
+//                targetOffset = position * scrollToChangeTheCurrent;
+//                pendingScroll = -(scrolledSum - targetOffset);
+//                startSmoothPendingScroll();
             }
         });
-        //} else {
-        //    attachView(v);
-        //    detachedCache.remove(position);
-        //}
+        } else {
+            measureChildWithMargins(v, 0, 0);
+            layoutDecoratedWithMargins(v, l, t, r, b);
+            attachView(v);
+            detachedCache.remove(position);
+        }
     }
 
     private void cacheAndDetachAttachedViews() {
@@ -268,10 +271,13 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
 //        }
 //
 //        int delta = Math.min(leftToScroll, Math.abs(dx)) * direction;
+
+        int scrollMaxLeft = 0;
+        int scrollMaxRight = getItemCount() * childViewWidth;
+
         int delta = Math.abs(dx) * direction;
         scrolledSum += delta;
-
-        if (scrolledSum < -scrollToChangeTheCurrent || (scrolledSum > scrollToChangeTheCurrent * getItemCount())) {
+        if (scrolledSum < scrollMaxLeft || scrolledSum > scrollMaxRight) {
             scrolledSum -= delta;
             return 0;
         }
@@ -283,9 +289,9 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
 
         offsetChildrenHorizontal(-delta);
 
-        View firstChild = getFirstChild(), lastChild = getLastChild();
-        boolean isNewVisibleFromLeft = getDecoratedLeft(firstChild) > 0 && getPosition(firstChild) > 0;
-        boolean isNewVisibleFromRight = getDecoratedRight(lastChild) < getWidth() && getPosition(lastChild) < getItemCount() - 1;
+//        View firstChild = getFirstChild(), lastChild = getLastChild();
+//        boolean isNewVisibleFromLeft = getDecoratedLeft(firstChild) > 0 && getPosition(firstChild) > 0;
+//        boolean isNewVisibleFromRight = getDecoratedRight(lastChild) < getWidth() && getPosition(lastChild) < getItemCount() - 1;
 
 //        if (isNewVisibleFromLeft || isNewVisibleFromRight) {
         fill(recycler);
@@ -421,58 +427,14 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
     }
 */
     private boolean onScrollEnd() {
-
-        int scrollDirection = dxToDirection(scrolled);
-
-//        int scrolledPositionCount = Math.abs(scrolled) / scrollToChangeTheCurrent;
-
-        //if (Math.abs(scrolled) == scrollToChangeTheCurrent) {
-//            currentPosition += scrollDirection;
-        //    currentPosition = scrolledSum / scrollToChangeTheCurrent;
-        //    scrolled = 0;
-        //}
-
-        if (Math.abs(scrolledSum) == Math.abs(targetOffset)) {
-//            currentPosition += scrollDirection;
-            //    currentPosition = scrolledSum / scrollToChangeTheCurrent;
-            currentPosition = scrolledSum / scrollToChangeTheCurrent;
-            scrolled = 0;
-            return true;
-        }
-
-//        currentPosition = scrolledSum / scrollToChangeTheCurrent;
-//        scrolled = 0;
-
-//        if (isAnotherItemCloserThanCurrent()) {
-//            pendingScroll = getHowMuchIsLeftToScroll(scrolled);
-//        } else {
-//            pendingScroll = -scrolled;
-//        }
-
-//        int targetPositionOffset = (scrolledSum + (childViewHalfWidth * dxToDirection(scrolled))) / scrollToChangeTheCurrent;
-//        int targetPositionOffset = scrolledSum / scrollToChangeTheCurrent;
-
-        int targetPositionOffset = (scrolledSum + childViewHalfWidth) / scrollToChangeTheCurrent;
-
-        if (targetPositionOffset < 0) {
-            targetPositionOffset = 0;
-        }
-        if (targetPositionOffset > getItemCount() - 1) {
-            targetPositionOffset = getItemCount() - 1;
-        }
-
-        targetOffset = targetPositionOffset * scrollToChangeTheCurrent;
-
-        pendingScroll = -(scrolledSum - targetOffset);
-
-//        Log.d("hello", ""+targetPositionOffset);
-
-//        pendingScroll = (scrolled % scrollToChangeTheCurrent) * -dxToDirection(scrolled);
+        pendingScroll = -scrolledSum;
 
         if (pendingScroll == 0) {
             return true;
         } else {
-            startSmoothPendingScroll();
+            LinearSmoothScroller scroller = new DiscreteLinearSmoothScroller(context);
+            scroller.setTargetPosition(currentPosition);
+            startSmoothScroll(scroller);
             return false;
         }
     }
@@ -544,12 +506,6 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
     }
 */
 
-    private void startSmoothPendingScroll() {
-        LinearSmoothScroller scroller = new DiscreteLinearSmoothScroller(context);
-        scroller.setTargetPosition(currentPosition);
-        startSmoothScroll(scroller);
-    }
-
     @Override
     public void onAdapterChanged(RecyclerView.Adapter oldAdapter, RecyclerView.Adapter newAdapter) {
         if (newAdapter.getItemCount() > 0) {
@@ -607,20 +563,6 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
             record.setFromIndex(getPosition(getFirstChild()));
             record.setToIndex(getPosition(getLastChild()));
         }
-    }
-
-    private float getCenterRelativePositionOf(View v) {
-        int viewCenterX = getDecoratedLeft(v) + childViewHalfWidth;
-        float distanceFromCenter = viewCenterX - recyclerCenterX;
-        return Math.min(Math.max(-1f, distanceFromCenter / scrollToChangeTheCurrent), 1f);
-    }
-
-    private int getHowMuchIsLeftToScroll(int dx) {
-        return (scrollToChangeTheCurrent - Math.abs(scrolled)) * dxToDirection(dx);
-    }
-
-    private boolean isAnotherItemCloserThanCurrent() {
-        return Math.abs(scrolled) >= scrollToChangeTheCurrent * 0.6f;
     }
 
     @Direction
@@ -688,14 +630,15 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
 
         @Override
         protected int calculateTimeForScrolling(int dx) {
-            float dist = Math.min(Math.abs(dx), scrollToChangeTheCurrent);
-            return (int) (Math.max(0.01f, dist / scrollToChangeTheCurrent) * timeForItemSettle);
+//            float dist = Math.min(Math.abs(dx), scrollToChangeTheCurrent);
+//            return (int) (Math.max(0.01f, dist / scrollToChangeTheCurrent) * timeForItemSettle);
+            return 500;
         }
 
         @Nullable
         @Override
         public PointF computeScrollVectorForPosition(int targetPosition) {
-            return new PointF(-pendingScroll, 0);
+            return new PointF(pendingScroll, 0);
         }
     }
 
