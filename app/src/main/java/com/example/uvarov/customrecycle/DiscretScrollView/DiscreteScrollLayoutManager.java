@@ -114,8 +114,8 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
         cacheAndDetachAttachedViews();
 
         int startX = recyclerCenterX - scrolledSum;
-        //int topPosition = (scrolledSum + (childViewWidth / 2)) / childViewWidth;
-        int topPosition = scrolledSum / childViewWidth;
+        int topPosition = (scrolledSum + (childViewWidth / 2)) / childViewWidth;
+//        int topPosition = scrolledSum / childViewWidth;
         topPosition = Math.min(Math.max(topPosition, 0), getItemCount() - 1);
 
 //        final int childTop = recyclerCenterY - childHalfHeight;
@@ -172,10 +172,16 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
         recycleViewsAndClearCache(recycler);
     }
 
+//    private float calculateItemOffset(float x) {
+//        float sign = Math.signum(x);
+//        x = Math.abs(x);
+//        return sign * ((0.0004166f * x * x) + (0.375f * x) + 0);
+//    }
+
     private float calculateItemOffset(float x) {
         float sign = Math.signum(x);
         x = Math.abs(x);
-        return sign * ((0.0004166f * x * x) + (0.375f * x) + 0);
+        return sign * (-(19.0f * (x * x * x) / 81000000.0f) + (113.0f * (x * x) / 180000.0f) + ((599.0f * x) / 1800.0f));
     }
 
     private void layoutView(RecyclerView.Recycler recycler, final int position, int l, int t, int r, int b) {
