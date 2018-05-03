@@ -92,10 +92,6 @@ public class DiscreteScrollView extends RecyclerView {
         return getChildViewHolder(layoutManager.findViewByPosition(position));
     }
 
-    public void addItemTransformer(DiscreteScrollItemTransformer transformer) {
-        layoutManager.addItemTransformer(transformer);
-    }
-
     public void setItemTransitionTimeMillis(@IntRange(from = 10) int millis) {
         layoutManager.setTimeForItemSettle(millis);
     }

@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 
 import com.example.uvarov.customrecycle.DiscretScrollView.DiscreteScrollLayoutManager;
 import com.example.uvarov.customrecycle.DiscretScrollView.DiscreteScrollView;
-import com.example.uvarov.customrecycle.DiscretScrollView.ScaleTransformer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
         mDiscreteScrollView = findViewById(R.id.recycle_view);
 //        mDiscreteScrollView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         DiscreteScrollLayoutManager layoutManager = new DiscreteScrollLayoutManager(this);
-        layoutManager.addItemTransformer(new ScaleTransformer());
         mDiscreteScrollView.setLayoutManager(layoutManager);
 
         List<ItemModel> titles = new ArrayList<>();
